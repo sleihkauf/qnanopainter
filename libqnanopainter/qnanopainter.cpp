@@ -130,24 +130,31 @@ Q_GLOBAL_STATIC(QNanoPainter, instance)
 */
 
 QNanoPainter::QNanoPainter()
-    : m_nvgContext(nullptr)
-    , m_textAlign(QNanoPainter::ALIGN_LEFT)
-    , m_textBaseline(QNanoPainter::BASELINE_ALPHABETIC)
-    , m_devicePixelRatio(1.0f)
-    , m_fontSet(false)
-{
+    : m_nvgContext(nullptr), m_textAlign(QNanoPainter::ALIGN_LEFT),
+      m_textBaseline(QNanoPainter::BASELINE_ALPHABETIC),
+      m_devicePixelRatio(1.0f), m_fontSet(false) {
 
     // Request actual OpenGL context version and type
     QOpenGLContext *context = QOpenGLContext::currentContext();
-    Q_ASSERT_X(context, "QNanoPainter::QNanoPainter", "No QOpenGL Context available!");
+  Q_ASSERT_X(context, "QNanoPainter::QNanoPainter",
+             "No QOpenGL Context available!");
     m_surfaceFormat =  context->format();
-    int major = m_surfaceFormat.majorVersion();
-    int minor = m_surfaceFormat.minorVersion();
-    bool isGLES = (QOpenGLContext::openGLModuleType() == QOpenGLContext::LibGLES);
+  //  int major = m_surfaceFormat.majorVersion();
+  //  int minor = m_surfaceFormat.minorVersion();
+  //  bool isGLES = (QOpenGLContext::openGLModuleType() ==
+  //  QOpenGLContext::LibGLES);
+
+  // force backend to OpenGLES 2.0
+  const int major = 2;
+  const int minor = 0;
+  const bool isGLES = true;
 
     // Create QNanoBackend most suitable for the context
     m_backend.reset(QNanoBackendFactory::createBackend(major, minor, isGLES));
-    m_openglContextName = QString("%1 %2.%3").arg(isGLES ? "OpenGL ES" : "OpenGL").arg(major).arg(minor);
+  m_openglContextName = QString("%1 %2.%3")
+                            .arg(isGLES ? "OpenGL ES" : "OpenGL")
+                            .arg(major)
+                            .arg(minor);
 
     qDebug() << "Using backend:" << m_backend->backendName();
 
@@ -155,7 +162,8 @@ QNanoPainter::QNanoPainter()
     // NOTE: Add also NVG_DEBUG when want to check possible OpenGL errors.
     m_nvgContext = m_backend->nvgCreate(NVG_ANTIALIAS);
 
-    Q_ASSERT_X(m_nvgContext, "QNanoPainter::QNanoPainter", "Could not init nanovg!");
+  Q_ASSERT_X(m_nvgContext, "QNanoPainter::QNanoPainter",
+             "Could not init nanovg!");
 
     setPixelAlign(QNanoPainter::PIXEL_ALIGN_NONE);
     setPixelAlignText(QNanoPainter::PIXEL_ALIGN_NONE);
